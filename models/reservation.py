@@ -1,10 +1,15 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime
-from models.database import Base
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from database import Base
 
 class Reservation(Base):
     __tablename__ = 'reservations'
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
-    table_number = Column(Integer, ForeignKey('tables.number'), nullable=False)
-    time = Column(DateTime, nullable=False)
+    table_id = Column(Integer, ForeignKey('tables.id'), nullable=False)
+    reservation_time = Column(String, nullable=False)  # Change to DateTime if necessary
+    guests = Column(Integer, nullable=False)
+
+    customer = relationship('Customer', back_populates='reservations')
+    table = relationship('Table')  # Define the relationship to Table

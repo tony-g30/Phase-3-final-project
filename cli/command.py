@@ -1,66 +1,72 @@
-from models.customer import Customer
-from models.table import Table
-from models.reservation import Reservation
-from models.database import session
+from sqlalchemy.orm import sessionmaker
+from database import engine, get_session
+from models import Customer, Reservation  # Adjust the import path as necessary
 
-def main_menu():
-    while True:
-        print("\nRestaurant Reservation System")
-        print("1. Add Customer")
-        print("2. View Customers")
-        print("3. Make a Reservation")
-        print("4. View Reservations")
-        print("5. Exit")
-        choice = input("\nChoose an option: ")
 
-        if choice == "1":
-            add_customer()
-        elif choice == "2":
-            view_customers()
-        elif choice == "3":
-            make_reservation()
-        elif choice == "4":
-            view_reservations()
-        elif choice == "5":
-            print("Exiting...")
-            sys.exit(0)
-        else:
-            print("Invalid choice. Please try again.")
+def create_customer(name, email, phone):
+    with get_session() as session:  # This assumes get_session() returns a session
+        new_customer = Customer(name=name, email=email, phone=phone)
+        session.add(new_customer)
+        session.commit()
 
-def add_customer():
-    name = input("Enter customer name: ")
-    email = input("Enter customer email: ")
-    phone = input("Enter customer phone: ")
 
-    new_customer = Customer(name=name, email=email, phone=phone)
-    session.add(new_customer)
-    session.commit()
-    print(f"Customer {name} added successfully!")
+def create_reservation(customer_id, table_id, reservation_time, guests):
+    with get_session() as session:
+        new_reservation = Reservation(
+            customer_id=customer_id,
+            table_id=table_id,
+            reservation_time=reservation_time,
+            guests=guests
+        )
+        session.add(new_reservation)
+        session.commit() 
+def get_customers():
+    with get_session() as session:
+        return session.query(Customer).all()
 
-def view_customers():
-    customers = session.query(Customer).all()
-    if not customers:
-        print("No customers found.")
-        return
-    
-    for customer in customers:
-        print(f"ID: {customer.id}, Name: {customer.name}, Email: {customer.email}")
+def get_reservations():
+    with get_session() as session:
+        return session.query(Reservation).all()
 
-def make_reservation():
-    customer_id = input("Enter customer ID: ")
-    table_number = input("Enter table number: ")
-    time = input("Enter reservation time (YYYY-MM-DD HH:MM): ")
+def get_customer_reservations(customer_id):
+    with get_session() as session:
+        return session.query(Reservation).filter_by(customer_id=customer_id).all()
+def update_customer(customer_id, updates):
+    with get_session() as session:
+        customer = session.query(Customer).filter(Customer.id == customer_id).first()
+        if customer:
+            if 'name' in updates:
+                customer.name = updates['name']
+            if 'email' in updates:
+                customer.email = updates['email']
+            if 'phone' in updates:
+                customer.phone = updates['phone']
+            session.commit()
 
-    new_reservation = Reservation(customer_id=customer_id, table_number=table_number, time=time)
-    session.add(new_reservation)
-    session.commit()
-    print(f"Reservation made successfully for customer {customer_id} at table {table_number}.")
 
-def view_reservations():
-    reservations = session.query(Reservation).all()
-    if not reservations:
-        print("No reservations found.")
-        return
-    
-    for reservation in reservations:
-        print(f"Customer ID: {reservation.customer_id}, Table: {reservation.table_number}, Time: {reservation.time}")
+def update_reservation(reservation_id, table_id, reservation_time, guests):
+    with get_session() as session:
+        reservation = session.query(Reservation).filter(Reservation.id == reservation_id).first()
+        if reservation:
+            reservation.table_id = table_id
+            reservation.reservation_time = reservation_time
+            reservation.guests = guests
+            session.commit()
+
+def delete_customer(customer_id):
+    with get_session() as session:
+        customer = session.query(Customer).filter_by(id=customer_id).first()
+        if customer:
+            session.delete(customer)
+            session.commit()
+            return True
+        return False
+
+def delete_reservation(reservation_id):
+    with get_session() as session:
+        reservation = session.query(Reservation).filter_by(id=reservation_id).first()
+        if reservation:
+            session.delete(reservation)
+            session.commit()
+            return True
+        return False
