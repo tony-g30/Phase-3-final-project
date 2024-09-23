@@ -1,10 +1,10 @@
 from sqlalchemy.orm import sessionmaker
 from database import engine, get_session
-from models import Customer, Reservation  # Adjust the import path as necessary
+from models import Customer, Reservation  
 
 
 def create_customer(name, email, phone):
-    with get_session() as session:  # This assumes get_session() returns a session
+    with get_session() as session:  
         new_customer = Customer(name=name, email=email, phone=phone)
         session.add(new_customer)
         session.commit()

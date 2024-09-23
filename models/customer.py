@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
-from database import Base  # Adjust the import based on your project structure
+from database import Base  
 
 class Customer(Base):
     __tablename__ = 'customers'

@@ -8,7 +8,7 @@ class Reservation(Base):
     id = Column(Integer, primary_key=True)
     customer_id = Column(Integer, ForeignKey('customers.id'), nullable=False)
     table_id = Column(Integer, ForeignKey('tables.id'), nullable=False)
-    reservation_time = Column(String, nullable=False)  # Change to DateTime if necessary
+    reservation_time = Column(String, nullable=False)  
     guests = Column(Integer, nullable=False)
 
     customer = relationship('Customer', back_populates='reservations')
